@@ -1,0 +1,52 @@
+youtube_channels:
+  - "https://www.youtube.com/@goodmythicalmorning/videos"    # URL for Good Mythical Morning
+  - "https://www.youtube.com/@Waveform/videos"    # URL for Waveform Podcast
+  - "https://www.youtube.com/@emilyharpist/videos"    # URL for Emily Hopkins
+
+# Time in seconds to wait after turning on the TV
+# Formerly 25. Testing 60 to counteract wakeup related bug.
+
+tv_wake_delay: 60
+
+# Maximum resolution for video download
+# 720 advised for RPi 3
+# 1080 advised for RPi 4
+# 1440 advised for RPi 5
+
+max_resolution: 1080
+
+# ANSI escape code for yellow color. Change this to use a different color
+
+debug_color: '\033[93m'  
+
+# Time in minutes to download the video before the alarm
+
+pre_download_time: 60
+
+start_time_monday:
+  hour: 10
+  minute: 00
+
+start_time_tuesday:
+  hour: 10
+  minute: 30
+
+start_time_wednesday:
+  hour: 10
+  minute: 00
+
+start_time_thursday:
+  hour: 10
+  minute: 45
+
+start_time_friday:
+  hour: 4
+  minute: 45
+
+start_time_saturday:
+  hour: 4
+  minute: 45
+
+start_time_sunday:
+  hour: 10
+  minute: 30
