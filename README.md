@@ -41,6 +41,8 @@ PiRise is a project aimed to act as an alarm clock by automatically playing the 
 
 ## Roadmap
 - **Fix Desktop loading Bug**: Sometimes on the Pi 4, and every time on the Pi 5, the system goes into some neutral sleep/awake state when the TV is woken back up. This disables the audio, and can only be fixed with a system restart.
+- **Fix rate limiting**: Often, when the script searches for the newest video, YouTube throws a 403 error because it was pinged too fast. This stops the video from downloading entirely.
+- **Add fallback video**: This script probably only works 60% of the time.The other 40% of the time, the TV turns on, and nothing happens. It would be nice to have a fallback video to play. Just in case the newest video fails to download.
 - **Auto Start**: Figure out a way to make main.py start as soon as the Pi boots.
 - **Time Warning**: Make some sort of indicator saying you've been watching the video for too long, and you seriously need to get up. Maybe the screen could go grayscale.
 - **Add GIF to README**: The README could use a GIF timelapse of the script in action.
