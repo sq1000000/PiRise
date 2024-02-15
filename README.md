@@ -10,7 +10,7 @@ PiRise is a project aimed to act as an alarm clock by automatically playing the 
 ## Getting Started
 
 ### Prerequisites
-- Raspberry Pi (any model with HDMI out, but preferably 4+).
+- Raspberry Pi (any model with HDMI out, but ideally 4+).
 - TV or monitor with HDMI input and CEC support.
 - Internet connection.
 - Basic knowledge of the Raspberry Pi setup process.
