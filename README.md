@@ -50,7 +50,7 @@ PiRise is a project aimed to act as an alarm clock by automatically playing the 
    cd $HOME
    mkdir -p ~/startup
    git clone https://github.com/sq1000000/AutoRun.git ~/startup
-   cd ~/startup/other
+   cd ~/startup/internals/other
    ./install_service.sh $USER
    cd $HOME
    cp ~/PiRise/other/PiRise_auto.sh ~/startup/terminal/PiRise.sh
