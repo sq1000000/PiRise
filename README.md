@@ -53,7 +53,7 @@ PiRise is a project aimed to act as an alarm clock by automatically playing the 
    cd ~/startup/internals/other
    ./install_service.sh $USER
    cd $HOME
-   cp ~/PiRise/other/PiRise_auto.sh ~/startup/terminal/PiRise.sh
+   cp ~/PiRise/Extra/PiRise_auto.sh ~/startup/terminal/PiRise.sh
    ```
 
    Since the program starts with the system, all you have to do now is reboot the RPi and wait for the time specified in `variables.yaml` to arrive.
