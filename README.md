@@ -35,13 +35,15 @@ PiRise is a project aimed to act as an alarm clock by automatically playing the 
    - Add your own `cookies.txt` file. This isn't completely necessary, but it can make the youtube downloader less likely to fail.
 
 4. **Download the first video**:
+
    Don't worry, the program will take care of this automatically later on.
 
    ```
    python3 Sequential/8_download_tomorrows_vid.py
    ```
 
-5. **Run on startup** (optional):
+6. **Run on startup** (optional):
+
    With this step, the program will start in a [screen session](https://linuxize.com/post/how-to-use-linux-screen/) as soon as the RPi boots.
 
    ```
@@ -54,15 +56,15 @@ PiRise is a project aimed to act as an alarm clock by automatically playing the 
    cp ~/PiRise/other/PiRise_auto.sh ~/startup/terminal/PiRise.sh
    ```
 
-   Since the program starts with the system, all you have to do now is reboot the RPi and wait for the time specified in `variables.yaml` to arrive
+   Since the program starts with the system, all you have to do now is reboot the RPi and wait for the time specified in `variables.yaml` to arrive.
 
    ```
    sudo reboot
    ```
 
 ### Usage (One time)
-- **Start the Alarm Clock**:
-  Assuming you did steps 1-4, this will start playing the video on an attached display without waiting for a specified time.
+
+  Assuming you did steps 1-4, this command will start playing the video on an attached display without waiting for a specified time.
   
   ```
   python3 main.py -n
