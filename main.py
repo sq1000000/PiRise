@@ -1,44 +1,18 @@
+#!/usr/bin/env python3
+
 import datetime
 import time
 import yaml
 import logging
-import DownloadVideo
 import subprocess
 import os
+import sys
 
-# ANSI escape code for yellow color
 YELLOW = '\033[93m'
 ENDC = '\033[0m'
 
 def debug_print(message):
-    print(YELLOW + message + ENDC)
-
-def switch_to_pi_input():
-    subprocess.run('echo "as" | cec-client -s -d 1', shell=True)
-
-def control_tv(command):
-    if command == "standby":
-        subprocess.run('echo "standby 0" | cec-client -s -d 1', shell=True)
-
-def play_video(file_basename):
-    for ext in ['mp4', 'mkv', 'webm', 'flv', 'avi']:
-        filename = f"{file_basename}.{ext}"
-        if os.path.exists(filename):
-            env = os.environ.copy()
-            env['DISPLAY'] = ':0'
-            subprocess.run(['cvlc', '--play-and-exit', '--fullscreen', filename], env=env)
-            return filename
-    raise Exception("Downloaded video file not found")
-
-def delete_video(file_basename):
-    for ext in ['mp4', 'mkv', 'webm', 'flv', 'avi']:
-        filename = f"{file_basename}.{ext}"
-        if os.path.exists(filename):
-            os.remove(filename)
-
-def is_time_to_trigger(current_time, target_hour, target_minute, pre_download_time):
-    download_time = current_time.replace(hour=target_hour, minute=target_minute, second=0, microsecond=0) - datetime.timedelta(minutes=pre_download_time)
-    return download_time <= current_time < download_time + datetime.timedelta(minutes=1)
+    print(f"{YELLOW}{message}{ENDC}")
 
 def log_error(message):
     logging.error(message)
@@ -47,53 +21,85 @@ def load_config():
     with open("variables.yaml", "r") as file:
         return yaml.safe_load(file)
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def is_time_to_trigger(current_time, target_hour, target_minute):
+    """Return True if current_time is within the 1-minute window of target."""
+    trigger_start = current_time.replace(
+        hour=target_hour, minute=target_minute, second=0, microsecond=0
+    )
+    return trigger_start <= current_time < trigger_start + datetime.timedelta(minutes=1)
 
-already_triggered = False
-video_downloaded = False
-file_basename = "latest_video"
+def run_sequential_scripts():
+    """
+    Runs all scripts in the 'Sequential' folder in sorted order.
+    Executes .sh with bash, .py with python3, and skips others.
+    """
+    debug_print("Running all scripts in Sequential folder...")
+    for filename in sorted(os.listdir("Sequential")):
+        script_path = os.path.join("Sequential", filename)
+        if filename.endswith(".sh"):
+            debug_print(f"Executing Bash script: {filename}")
+            subprocess.run(["bash", script_path])
+        elif filename.endswith(".py"):
+            debug_print(f"Executing Python script: {filename}")
+            subprocess.run(["python3", script_path])
+        else:
+            debug_print(f"Skipping unrecognized file type: {filename}")
+    debug_print("All Sequential scripts have been executed.")
 
-while True:
-    try:
-        current_time = datetime.datetime.now()
-        config = load_config()
+def main():
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-        current_day = current_time.strftime("%A").lower()
-        start_time_key = f"start_time_{current_day}"
+    # Check for the "-n" flag to run immediately
+    run_now = ("-n" in sys.argv)
+    already_triggered = False
+    first_run = True  # Will let us print a "waiting" message once at start (if not -n)
 
-        if start_time_key in config:
+    while True:
+        try:
+            current_time = datetime.datetime.now()
+            config = load_config()
+
+            # Determine which day's alarm we should look for
+            current_day = current_time.strftime("%A").lower()
+            start_time_key = f"start_time_{current_day}"
+
+            if start_time_key not in config:
+                raise Exception(f"Start time not configured for {current_day}")
+
             target_hour = config[start_time_key]["hour"]
             target_minute = config[start_time_key]["minute"]
-        else:
-            raise Exception(f"Start time not configured for {current_day}")
 
-        if is_time_to_trigger(current_time, target_hour, target_minute, config["pre_download_time"]) and not video_downloaded:
-            debug_print("Initiating video download process...")
-            file_basename = DownloadVideo.fetch_and_download_latest_video(config['youtube_channels'], config["max_resolution"])
-            video_downloaded = True
-            debug_print(f"Video downloaded: {file_basename}")
+            # If first run and user did not specify -n, show waiting message
+            if first_run and not run_now:
+                debug_print(f"Waiting for {target_hour}:{target_minute:02d} to start over.")
+                first_run = False
 
-        if is_time_to_trigger(current_time, target_hour, target_minute, 0) and not already_triggered:
-            debug_print("Triggering video playback...")
-            switch_to_pi_input()
-            time.sleep(config.get("tv_wake_delay", 60))
-
-            filename = play_video(file_basename)
-            if filename:
-                time.sleep(config.get("tv_wake_delay", 60))
-                control_tv("standby")
-                delete_video(file_basename)
+            # If the user passed -n and we haven't run yet, do an immediate run
+            if run_now and not already_triggered:
+                run_sequential_scripts()
                 already_triggered = True
-                debug_print(f"Video playback completed and TV turned off: {filename}")
-            else:
-                log_error("Video not downloaded in time")
+                run_now = False  # Reset this so we don't keep triggering repeatedly
+                debug_print(f"Waiting for {target_hour}:{target_minute:02d} to start over.")
 
-        if current_time >= current_time.replace(hour=target_hour, minute=target_minute + 1, second=0, microsecond=0):
-            already_triggered = False
-            video_downloaded = False
-            # debug_print("Resetting triggers for the next cycle.")  # This line is now commented out
+            # Normal daily alarm check: trigger if it's that time
+            if is_time_to_trigger(current_time, target_hour, target_minute) and not already_triggered:
+                run_sequential_scripts()
+                already_triggered = True
+                debug_print(f"Waiting for {target_hour}:{target_minute:02d} to start over.")
 
-        time.sleep(10)
-    except Exception as e:
-        log_error(f"An error occurred: {e}")
+            # Once we move past the alarm time by at least 1 minute, reset the trigger
+            after_alarm = current_time.replace(
+                hour=target_hour, minute=target_minute, second=0, microsecond=0
+            )
+            if current_time >= after_alarm + datetime.timedelta(minutes=1):
+                already_triggered = False
+
+            time.sleep(10)
+
+        except Exception as e:
+            log_error(f"An error occurred: {e}")
+            time.sleep(10)
+
+if __name__ == "__main__":
+    main()
 

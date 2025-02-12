@@ -1,0 +1,13 @@
+# Ignore downloaded video files
+latest_video.webm
+latest_video.yaml
+
+# Ignore cookies.txt
+cookies.txt
+
+# Ignore Python cache
+__pycache__/
+
+# Ignore macOS DS_Store files
+.DS_Store
+
