@@ -25,7 +25,7 @@ PiRise is a project aimed to act as an alarm clock by automatically playing the 
      
 2. **Clone the Repository**:
    ```
-   git clone https://github.com/sq1000000/PiRise.git
+   git clone https://github.com/sata1000000/PiRise.git
    cd PiRise
    ```
 
@@ -49,7 +49,7 @@ PiRise is a project aimed to act as an alarm clock by automatically playing the 
    ```
    cd $HOME
    mkdir -p ~/startup
-   git clone https://github.com/sq1000000/AutoRun.git ~/startup
+   git clone https://github.com/sata1000000/AutoRun.git ~/startup
    cd ~/startup/internals/other
    ./install_service.sh $USER
    cd $HOME
